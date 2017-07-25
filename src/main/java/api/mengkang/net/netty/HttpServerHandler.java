@@ -1,6 +1,6 @@
 package api.mengkang.net.netty;
 
-
+import api.mengkang.net.RequestHandler;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
@@ -11,16 +11,18 @@ import io.netty.handler.codec.http.HttpHeaderUtil;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.*;
-import static io.netty.handler.codec.http.HttpResponseStatus.*;
-import static io.netty.handler.codec.http.HttpVersion.*;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpResponseStatus.CONTINUE;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 
 /**
  * @author zhoumengkang
  */
 public class HttpServerHandler extends ChannelHandlerAdapter {
-    private static final byte[] CONTENT = { 'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd' };
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) {
@@ -36,7 +38,8 @@ public class HttpServerHandler extends ChannelHandlerAdapter {
                 ctx.write(new DefaultFullHttpResponse(HTTP_1_1, CONTINUE));
             }
             boolean keepAlive = HttpHeaderUtil.isKeepAlive(req);
-            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(CONTENT));
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(
+                RequestHandler.response(ctx,msg)));
             response.headers().set(CONTENT_TYPE, "text/plain");
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
 
