@@ -5,6 +5,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.AsciiString;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderUtil;
@@ -40,7 +41,8 @@ public class HttpServerHandler extends ChannelHandlerAdapter {
             boolean keepAlive = HttpHeaderUtil.isKeepAlive(req);
             FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.wrappedBuffer(
                 RequestHandler.response(ctx,msg)));
-            response.headers().set(CONTENT_TYPE, "text/plain");
+            // 返回 json 格式的数据
+            response.headers().set(CONTENT_TYPE,new AsciiString("application/json; charset=utf-8"));
             response.headers().setInt(CONTENT_LENGTH, response.content().readableBytes());
 
             if (!keepAlive) {

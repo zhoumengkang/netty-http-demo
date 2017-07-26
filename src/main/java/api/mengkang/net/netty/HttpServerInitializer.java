@@ -3,6 +3,7 @@ package api.mengkang.net.netty;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslContext;
@@ -27,6 +28,8 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         }
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
+        // 增加 gzip 压缩
+        pipeline.addLast(new HttpContentCompressor(1));
         pipeline.addLast(new HttpServerHandler());
     }
 }

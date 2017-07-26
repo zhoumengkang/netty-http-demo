@@ -78,14 +78,14 @@ public class RequestHandler {
         Request request = requestFetch(ctx,msg);
 
         if (!request.getParameters().containsKey(REQUEST_METHOD)) {
-            return error();
+            return responseError(ErrorCode.METHOD_CAN_NOT_BE_NULL);
         }
 
         String method = request.getParameters().get(REQUEST_METHOD).get(0);
         String[] classAndMethodArray = method.split("\\.");
 
         if (classAndMethodArray.length < 2) {
-            return error();
+            return responseError(ErrorCode.METHOD_CAN_NOT_BE_NULL);
         }
 
         String clazz = getApiController(classAndMethodArray[0]);
@@ -102,13 +102,13 @@ public class RequestHandler {
     }
 
     /**
-     * 暂时调试用
+     * 返回错误信息
      *
      * @return
      */
-    private static byte[] error() {
-        String error = "method can't be null";
-        return error.getBytes();
+    private static byte[] responseError(int errorCode) {
+        Response response = new Response(errorCode);
+        return encode(response);
     }
 
     private static String getApiController(String method) {
