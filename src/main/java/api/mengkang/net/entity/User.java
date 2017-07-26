@@ -4,16 +4,16 @@ package api.mengkang.net.entity;
  * @author zhoumengkang
  * @date 17/7/26.
  */
-public class UserDO {
+public class User {
     private Integer id;
     private Integer age;
     private Integer sex;
     private String username;
 
-    public UserDO() {
+    public User() {
     }
 
-    public UserDO(Integer id, Integer age, Integer sex, String username) {
+    public User(Integer id, Integer age, Integer sex, String username) {
         this.id = id;
         this.age = age;
         this.sex = sex;
@@ -54,7 +54,7 @@ public class UserDO {
 
     @Override
     public String toString() {
-        return "UserDO{" +
+        return "User{" +
             "id=" + id +
             ", age=" + age +
             ", sex=" + sex +
