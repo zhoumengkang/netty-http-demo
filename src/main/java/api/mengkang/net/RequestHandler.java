@@ -77,7 +77,7 @@ public class RequestHandler {
         try {
             classname = Class.forName("api.mengkang.net.api." + clazz + "Controller");
             Object inst = classname.newInstance();
-            methodName = classname.getMethod(function, QueryStringDecoder.class);
+            methodName = classname.getMethod(function);
             result = methodName.invoke(inst);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
