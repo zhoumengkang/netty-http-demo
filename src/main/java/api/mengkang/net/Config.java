@@ -9,13 +9,13 @@ import java.util.Properties;
  */
 public class Config {
 
-    private static Properties properties = new Properties();
-    private static final String configName = "/api.properties";
+    private static Properties PROPERTIES = new Properties();
+    private static final String CONFIG_NAME = "/api.properties";
     private static Config instance;
 
     private Config() {
         try {
-            properties.load(new InputStreamReader(getClass().getResourceAsStream(configName), "UTF-8"));
+            PROPERTIES.load(new InputStreamReader(getClass().getResourceAsStream(CONFIG_NAME), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -33,7 +33,7 @@ public class Config {
             if (null == instance) {
                 getInstance();
             }
-            return Integer.parseInt(properties.getProperty(str));
+            return Integer.parseInt(PROPERTIES.getProperty(str));
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -45,7 +45,7 @@ public class Config {
             if (null == instance) {
                 getInstance();
             }
-            return Long.parseLong(properties.getProperty(str));
+            return Long.parseLong(PROPERTIES.getProperty(str));
         } catch (Exception e) {
             e.printStackTrace();
             return 0;
@@ -57,7 +57,7 @@ public class Config {
             if (null == instance) {
                 getInstance();
             }
-            return Double.parseDouble(properties.getProperty(str));
+            return Double.parseDouble(PROPERTIES.getProperty(str));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +70,7 @@ public class Config {
             if (null == instance) {
                 getInstance();
             }
-            return properties.getProperty(str);
+            return PROPERTIES.getProperty(str);
         } catch (Exception e) {
             e.printStackTrace();
             return "";
@@ -82,7 +82,7 @@ public class Config {
             if (null == instance) {
                 getInstance();
             }
-            return Boolean.parseBoolean(properties.getProperty(str));
+            return Boolean.parseBoolean(PROPERTIES.getProperty(str));
         } catch (Exception e) {
             e.printStackTrace();
             return false;

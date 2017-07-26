@@ -43,6 +43,11 @@ public class Response {
         }
     }
 
+    public Response(int errorCode, String errorMsg) {
+        this.errorCode = errorCode;
+        this.errorMsg = errorMsg;
+    }
+
     public Response(Object data) {
         this.data = data;
     }

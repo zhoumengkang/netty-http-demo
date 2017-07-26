@@ -93,7 +93,7 @@ public class RequestHandler {
 
         Object obj = invoke(clazz, function,request);
 
-        return encode(obj);
+        return encode(new Response(obj));
     }
 
     private static byte[] encode(Object object) {
@@ -130,16 +130,9 @@ public class RequestHandler {
             classObject = constructor.newInstance(request);
             methodName = classname.getMethod(function);
             result = methodName.invoke(classObject);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
+            return responseError(ErrorCode.SYSTEM_ERROR);
         }
 
         return result;

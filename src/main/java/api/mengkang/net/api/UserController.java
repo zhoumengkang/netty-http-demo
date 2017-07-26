@@ -1,8 +1,7 @@
 package api.mengkang.net.api;
 
-import java.util.HashMap;
-
 import api.mengkang.net.Request;
+import api.mengkang.net.model.UserModel;
 
 /**
  * @author zhoumengkang
@@ -18,20 +17,16 @@ public class UserController extends BaseController {
 
         int uid;
 
-        HashMap userInfo = new HashMap<>(2);
-
-        if (!request.getParameters().containsKey("id")) {
-            return userInfo;
+        if (!request.getParameters().containsKey("id")){
+            return parameterNotFound("uid");
         }
 
         try{
             uid = Integer.parseInt(request.getParameters().get("id").get(0));
         }catch (NumberFormatException e){
-            return userInfo;
+            return parameterFormatError("uid");
         }
 
-        userInfo.put("id",uid);
-        userInfo.put("name","mengkang");
-        return userInfo;
+        return UserModel.getUserInfoById(uid);
     }
 }
