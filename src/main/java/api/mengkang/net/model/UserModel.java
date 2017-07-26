@@ -1,13 +1,14 @@
 package api.mengkang.net.model;
 
-import api.mengkang.net.entity.UserDO;
+import api.mengkang.net.dao.UserDao;
+import api.mengkang.net.entity.User;
 
 /**
  * @author zhoumengkang
  * @date 17/7/26.
  */
 public class UserModel {
-    public static UserDO getUserInfoById(int uid){
-        return new UserDO(uid,18,1,"mengkang.zhou");
+    public static User getUserInfoById(int uid){
+        return UserDao.getById(uid);
     }
 }

@@ -1,6 +1,7 @@
 package api.mengkang.net.api;
 
 import api.mengkang.net.Request;
+import api.mengkang.net.entity.User;
 import api.mengkang.net.model.UserModel;
 
 /**
@@ -27,6 +28,12 @@ public class UserController extends BaseController {
             return parameterFormatError("uid");
         }
 
-        return UserModel.getUserInfoById(uid);
+        User user = UserModel.getUserInfoById(uid);
+
+        if (user == null) {
+            return parameterFormatError("uid");
+        }
+
+        return user;
     }
 }
