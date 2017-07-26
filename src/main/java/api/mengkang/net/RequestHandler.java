@@ -24,6 +24,11 @@ import io.netty.util.CharsetUtil;
  */
 public class RequestHandler {
 
+    /**
+     * 我们约定的请求的 method 参数 来查找控制
+     */
+    private static final String REQUEST_METHOD = "method";
+
     private static Request requestFetch(ChannelHandlerContext ctx, Object msg){
 
         Request request = new Request();
@@ -72,19 +77,11 @@ public class RequestHandler {
 
         Request request = requestFetch(ctx,msg);
 
-        HttpRequest req = (HttpRequest)msg;
-
-        String uri = req.uri();
-        if (uri.length() <= 0) {
+        if (!request.getParameters().containsKey(REQUEST_METHOD)) {
             return error();
         }
 
-
-        if (!request.getParameters().containsKey("method")) {
-            return error();
-        }
-
-        String method = request.getParameters().get("method").get(0);
+        String method = request.getParameters().get(REQUEST_METHOD).get(0);
         String[] classAndMethodArray = method.split("\\.");
 
         if (classAndMethodArray.length < 2) {
