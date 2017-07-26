@@ -1,13 +1,22 @@
 package api.mengkang.net;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.alibaba.fastjson.JSON;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
+import io.netty.handler.codec.http.multipart.InterfaceHttpData;
+import io.netty.handler.codec.http.multipart.MixedAttribute;
+import io.netty.util.CharsetUtil;
 
 /**
  * @author zhoumengkang
@@ -15,7 +24,54 @@ import io.netty.handler.codec.http.QueryStringDecoder;
  */
 public class RequestHandler {
 
+    private static Request requestFetch(ChannelHandlerContext ctx, Object msg){
+
+        Request request = new Request();
+
+        HttpRequest req = (HttpRequest)msg;
+        String uri = req.uri();
+
+        // ip
+        String clientIP = (String) req.headers().get("X-Forwarded-For");
+        if (clientIP == null) {
+            InetSocketAddress remoteSocket = (InetSocketAddress) ctx.channel().remoteAddress();
+            clientIP = remoteSocket.getAddress().getHostAddress();
+        }
+        request.setIp(clientIP);
+
+        // method
+        request.setMethod(req.method());
+
+        // get
+        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
+        if (queryStringDecoder.parameters().size() > 0) {
+            request.getParameters().putAll(queryStringDecoder.parameters());
+        }
+
+        // post
+        if (req.method().equals(HttpMethod.POST)) {
+            HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(req);
+            try {
+                List<InterfaceHttpData> postList = decoder.getBodyHttpDatas();
+                for (InterfaceHttpData data : postList) {
+                    List<String> values = new ArrayList<>();
+                    MixedAttribute value = (MixedAttribute) data;
+                    value.setCharset(CharsetUtil.UTF_8);
+                    values.add(value.getValue());
+                    request.getParameters().put(data.getName(), values);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return request;
+    }
+
     public static byte[] response(ChannelHandlerContext ctx, Object msg) {
+
+        Request request = requestFetch(ctx,msg);
+
         HttpRequest req = (HttpRequest)msg;
 
         String uri = req.uri();
@@ -23,17 +79,12 @@ public class RequestHandler {
             return error();
         }
 
-        // get 参数
-        QueryStringDecoder queryStringDecoder = new QueryStringDecoder(uri);
-        if (queryStringDecoder.parameters().size() <= 0) {
+
+        if (!request.getParameters().containsKey("method")) {
             return error();
         }
 
-        if (!queryStringDecoder.parameters().containsKey("method")) {
-            return error();
-        }
-
-        String method = queryStringDecoder.parameters().get("method").get(0);
+        String method = request.getParameters().get("method").get(0);
         String[] classAndMethodArray = method.split("\\.");
 
         if (classAndMethodArray.length < 2) {
@@ -43,7 +94,7 @@ public class RequestHandler {
         String clazz = getApiController(classAndMethodArray[0]);
         String function = classAndMethodArray[1];
 
-        Object obj = invoke(clazz, function);
+        Object obj = invoke(clazz, function,request);
 
         return encode(obj);
     }
@@ -69,16 +120,19 @@ public class RequestHandler {
         return String.valueOf(tmp);
     }
 
-    public static Object invoke(String clazz, String function) {
+    private static Object invoke(String clazz, String function,Request request) {
         Class<?> classname;
+        Object   classObject;
+        Constructor constructor;
         Method methodName;
         Object result = null;
 
         try {
             classname = Class.forName("api.mengkang.net.api." + clazz + "Controller");
-            Object inst = classname.newInstance();
-            methodName = classname.getMethod(function, QueryStringDecoder.class);
-            result = methodName.invoke(inst);
+            constructor = classname.getConstructor(Request.class);
+            classObject = constructor.newInstance(request);
+            methodName = classname.getMethod(function);
+            result = methodName.invoke(classObject);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (NoSuchMethodException e) {
